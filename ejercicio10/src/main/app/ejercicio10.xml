@@ -9,12 +9,17 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/jbossts/current/mule-jbossts.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" basePath="/ejercicio10" doc:name="HTTP Listener Configuration"/>
-    <jms:activemq-connector name="Active_MQ" username="admin" password="admin" brokerURL="tcp://M511:61616" validateConnections="true" doc:name="Active MQ"/>
+    <jms:activemq-connector name="Active_MQ"   brokerURL="tcp://localhost:61616" validateConnections="true" doc:name="Active MQ" specification="1.1"/>
+    <jms:activemq-connector name="Active_MQ1" specification="1.1" brokerURL="tcp://localhost:61616" validateConnections="true" doc:name="Active MQ"/>
     <flow name="ejercicio9Flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP" allowedMethods="GET"/>
-        <set-payload doc:name="Set Payload" value="#[message.inboundProperties.'http.query.params'.[nombre]]"/>
-        <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="nombre">
+        <set-payload doc:name="Set Payload" value="#[message.inboundProperties.'http.query.params'.['nombre']]"/>
+        <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="nombres">
             <xa-transaction action="NONE"/>
         </jms:outbound-endpoint>
+    </flow>
+    <flow name="ejercicio10Flow">
+        <jms:inbound-endpoint queue="nombres" connector-ref="Active_MQ1" doc:name="JMS"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
     </flow>
 </mule>
